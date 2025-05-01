@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>To-Do Notion Style</title>
+  <style>
+    body {
+      font-family: 'Georgia', serif;
+      background: transparent;
+      padding: 20px;
+      color: #333;
+    }
+
+    .todo-container {
+      background: #fff;
+      padding: 20px 25px;
+      border: 1px solid #ddd;
+      border-radius: 6px; /* Coins arrondis style Notion */
+      max-width: 500px;
+      margin: auto;
+    }
+
+    .todo-title {
+      display: flex;
+      align-items: center;
+      font-size: 1.3em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .todo-title img {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+    }
+
+    .todo-title input[type="text"] {
+      font-size: 1.3em;
+      font-weight: bold;
+      font-family: inherit;
+      border: none;
+      background: transparent;
+      color: #333;
+      outline: none;
+      width: 100%;
+    }
+
+    .divider {
+      height: 1px;
+      background-color: #ddd;
+      margin: 10px 0 20px 0;
+      width: 60%; /* Ligne plus courte */
+      border: none;
+    }
+
+    .task {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .task input[type="checkbox"] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid #aaa;
+      border-radius: 4px;
+      margin-right: 10px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .task input[type="checkbox"]:checked {
+      background-color: #222;
+      border-color: #222;
+    }
+
+    .task input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 5px;
+      width: 4px;
+      height: 8px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .task input[type="text"] {
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 1em;
+      color: #333;
+      width: 100%;
+      outline: none;
+    }
+
+    .progress-bar {
+      width: 60%;
+      height: 10px;
+      background: #eee;
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 20px auto 0 auto;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(to right, #f9a8d4, #ec4899);
+      transition: width 0.4s ease;
+    }
+  </style>
+</head>
+<body>
+
+<div class="todo-container">
+  <div class="todo-title">
+    <img id="todoIcon" src="https://img.icons8.com/ios/250/000000/todo-list.png" alt="todo-icon">
+    <input type="text" id="todoTitle" value="Tâches du jour" oninput="saveTitle()">
+  </div>
+  <hr class="divider">
+
+  <div class="task"><input type="checkbox" onchange="updateAll()"> <input type="text" value="Faire 10 minutes de sport" oninput="updateAll()"></div>
+  <div class="task"><input type="checkbox" onchange="updateAll()"> <input type="text" value="Lire un chapitre" oninput="updateAll()"></div>
+  <div class="task"><input type="checkbox" onchange="updateAll()"> <input type="text" value="Boire 1L d’eau" oninput="updateAll()"></div>
+  <div class="task"><input type="checkbox" onchange="updateAll()"> <input type="text" value="Méditer 5 minutes" oninput="updateAll()"></div>
+
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressBar"></div>
+  </div>
+</div>
+
+<script>
+  const tasks = document.querySelectorAll('.task');
+  const titleInput = document.getElementById('todoTitle');
+
+  function updateAll() {
+    updateProgress();
+    saveTasks();
+  }
+
+  function updateProgress() {
+    const checkboxes = document.querySelectorAll('.task input[type="checkbox"]');
+    const checked = [...checkboxes].filter(cb => cb.checked).length;
+    const percent = (checked / checkboxes.length) * 100;
+    document.getElementById('progressBar').style.width = percent + '%';
+  }
+
+  function saveTasks() {
+    const data = [...tasks].map(task => ({
+      done: task.querySelector('input[type="checkbox"]').checked,
+      text: task.querySelector('input[type="text"]').value
+    }));
+    localStorage.setItem('todoList', JSON.stringify(data));
+  }
+
+  function loadTasks() {
+    const data = JSON.parse(localStorage.getItem('todoList'));
+    if (data) {
+      data.forEach((item, index) => {
+        const task = tasks[index];
+        if (task) {
+          task.querySelector('input[type="checkbox"]').checked = item.done;
+          task.querySelector('input[type="text"]').value = item.text;
+        }
+      });
+      updateProgress();
+    }
+  }
+
+  function saveTitle() {
+    localStorage.setItem('todoTitle', titleInput.value);
+  }
+
+  function loadTitle() {
+    const savedTitle = localStorage.getItem('todoTitle');
+    if (savedTitle) {
+      titleInput.value = savedTitle;
+    }
+  }
+
+  // Initialisation
+  loadTasks();
+  loadTitle();
+</script>
+
+</body>
+</html>
